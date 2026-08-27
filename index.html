@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PC fusion — Custom PC Builder & Architect</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body id="user-app">
+
+  <!-- ==========================================
+       NAVIGATION BAR
+       ========================================== -->
+  <header class="navbar">
+    <div class="nav-brand" onclick="navigateTo('home')">
+      <span class="brand-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        PC Fusion
+      </span>
+      <span class="badge badge-cyan" style="font-size:0.7rem;"> 2.0</span>
+    </div>
+
+    <ul class="nav-links">
+      <li><a class="nav-link active" data-nav="home" onclick="navigateTo('home')">Home</a></li>
+      <li><a class="nav-link" data-nav="builder" onclick="navigateTo('builder')">PC Builder</a></li>
+      <li><a class="nav-link" data-nav="components" onclick="navigateTo('components')">Components</a></li>
+      <li><a class="nav-link" data-nav="my-builds" onclick="navigateTo('my-builds')">My Builds</a></li>
+      <li><a class="nav-link" data-nav="wishlist" onclick="navigateTo('wishlist')">Wishlist <span id="nav-wishlist-count" class="badge badge-purple" style="display:none; font-size:0.65rem; margin-left:2px;">0</span></a></li>
+      <li><a class="nav-link" data-nav="my-bills" onclick="navigateTo('my-bills')">My Bills</a></li>
+      <li><a class="nav-link nav-link-ai" onclick="toggleAIChat()" title="Ask AI Hardware Architect"><span style="margin-right:2px;">🤖</span> AI Assistant</a></li>
+      <li><a class="nav-link" data-nav="about" onclick="navigateTo('about')">About</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <!-- Guest Auth Buttons -->
+      <div id="nav-guest-btns" style="display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="openAuthModal('login')">Sign In</button>
+        <button class="btn btn-primary btn-sm" onclick="openAuthModal('register')">Register</button>
+      </div>
+
+      <!-- Logged-in User Profile Dropdown -->
+      <div id="nav-user-menu" class="user-menu-wrap" style="display:none;">
+        <button class="user-badge-btn" onclick="toggleUserDropdown()">
+          <span class="user-avatar-circle" id="user-avatar-initials">U</span>
+          <span id="user-display-name">User</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        
+        <div id="user-dropdown-menu" class="user-dropdown">
+          <div class="dropdown-item" onclick="navigateTo('dashboard')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Dashboard
+          </div>
+          <div class="dropdown-item" onclick="navigateTo('my-builds')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            Saved Builds
+          </div>
+          <div class="dropdown-item" onclick="navigateTo('wishlist')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            My Wishlist
+          </div>
+          <div class="dropdown-item" onclick="navigateTo('my-bills')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Invoices & Bills
+          </div>
+          <div id="admin-panel-link" class="dropdown-item" style="display:none;" onclick="location.href='/admin.html'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Admin Panel
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" style="color:var(--accent-red);" onclick="handleLogout()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Sign Out
+          </div>
+        </div>
+      </div>
+
+      <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       MAIN CONTENT CONTAINER (SPA VIEWS)
+       ========================================== -->
+  <main class="main-container">
+
+    <!-- 1. HOME VIEW -->
+    <section id="view-home" class="view-section active-view">
+      <div class="hero-section">
+        <div class="hero-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"></svg>
+          AI-POWERED HARDWARE ARCHITECT
+        </div>
+        <h1 class="hero-title">
+          Forge Your Ultimate <br/>
+          <span class="gradient-text">Gaming & Workstation Rig</span>
+        </h1>
+        <p class="hero-subtitle">
+          Intelligent component compatibility validation, deterministic smart build scoring, real-time FPS estimation, multi-vendor live price analysis, and printable GST tax invoicing.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" onclick="navigateTo('builder')">
+            Start PC Builder
+          </button>
+          <button class="btn btn-secondary btn-lg" onclick="toggleAIChat()">
+            🤖 Ask AI Architect
+          </button>
+          <button class="btn btn-secondary btn-lg" onclick="navigateTo('components')">
+            Browse Catalog
+          </button>
+        </div>
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="trust-grid">
+        <div class="trust-card">
+          <div class="trust-number">100%</div>
+          <div class="trust-label">Hardware Socket Compatibility</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-number">65+</div>
+          <div class="trust-label">Verified Tier-1 Components</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-number">18% GST</div>
+          <div class="trust-label">Itemized Tax Invoicing</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-number">Real-Time</div>
+          <div class="trust-label">Gaming FPS Estimator</div>
+        </div>
+      </div>
+
+      <!-- How It Works -->
+      <div class="section-header">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-desc">Four simple steps from component selection to a complete verified tax invoice.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <h3>Set Budget & Purpose</h3>
+          <p class="text-muted">Use the new Budget Slider to define your spending target in ₹ INR and choose Gaming, Workstation, Coding, or Office.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <h3>Select Parts or Auto-Build</h3>
+          <p class="text-muted">Pick your CPU, GPU, Motherboard, RAM, Storage, and Case or let our AI auto-balance the spend.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <h3>Verify Compatibility & Smart Score</h3>
+          <p class="text-muted">Instant rule-checking for CPU sockets, motherboard DDR type, PSU wattage headroom, and Smart Build Score (/100).</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">04</div>
+          <h3>Save & Generate Invoice</h3>
+          <p class="text-muted">Store your build in your account, add parts to Wishlist, and print official itemized GST Tax Invoices in one click.</p>
+        </div>
+      </div>
+
+      <!-- Why Choose Us Features -->
+      <div class="section-header">
+        <h2 class="section-title">Why Choose NEON RIG</h2>
+        <p class="section-desc">Engineered for hardware enthusiasts, gamers, and professional creators.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3 style="font-size:1.15rem; color:#fff;">Smart AI Suggestion</h3>
+          <p class="text-muted" style="font-size:0.9rem;">Calculates ideal price distribution ratios according to workload needs.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3 style="font-size:1.15rem; color:#fff;">Socket & Power Validation</h3>
+          <p class="text-muted" style="font-size:0.9rem;">Automated checks for LGA1700, AM4, AM5 sockets, DDR4/DDR5 compatibility, and GPU watts.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3 style="font-size:1.15rem; color:#fff;">AAA Game FPS Predictor</h3>
+          <p class="text-muted" style="font-size:0.9rem;">Predicts realistic frame rates across Cyberpunk 2077, GTA V, Valorant and productivity scores.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧾</div>
+          <h3 style="font-size:1.15rem; color:#fff;">Complete Tax Invoicing</h3>
+          <p class="text-muted" style="font-size:0.9rem;">Generate and print clean PDF-ready GST invoices with complete component itemization.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. PC BUILDER WORKSTATION VIEW -->
+    <section id="view-builder" class="view-section">
+      <div class="builder-layout">
+        
+        <!-- Left: Part Selection & AI Assistant -->
+        <div class="builder-main-panel">
+          
+          <!-- AI Assistant / Suggestion Bar -->
+          <div class="ai-advisor-bar">
+            <div>
+              <div style="font-family:var(--font-heading); font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                AI Build Architect
+              </div>
+              <div class="text-muted" style="font-size:0.8rem;">Auto-select balanced, 100% compatible parts based on budget.</div>
+            </div>
+            
+            <div class="ai-advisor-inputs">
+              <div>
+                <label class="form-label" style="margin-bottom:2px; font-size:0.75rem;">Budget (₹):</label>
+                <input type="number" id="builder-budget-input" class="form-input" min="20000" step="2000" value="75000" style="width:130px; padding:6px 10px; font-size:0.88rem;" oninput="syncBudgetSlider(this.value)" />
+              </div>
+              <div>
+                <label class="form-label" style="margin-bottom:2px; font-size:0.75rem;">Purpose:</label>
+                <select id="builder-purpose-select" class="form-select" style="width:140px; padding:6px 10px; font-size:0.88rem;">
+                  <option value="gaming">Gaming Rig</option>
+                  <option value="workstation">Workstation</option>
+                  <option value="balanced">Balanced</option>
+                  <option value="coders">Developer</option>
+                  <option value="office">Office PC</option>
+                </select>
+              </div>
+              <button id="builder-suggest-btn" class="btn btn-primary btn-sm" style="margin-top:14px;" onclick="handleAutoSuggest()">
+                ⚡ Auto-Suggest
+              </button>
+            </div>
+          </div>
+
+          <!-- Budget Slider Card -->
+          <div class="glass-card" style="margin-bottom:16px; padding:14px 18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div>
+                <span style="font-weight:700; color:#fff; font-size:0.9rem;">Target Budget Slider:</span>
+                <span class="text-muted" style="font-size:0.78rem; margin-left:6px;">Adjust to update available components & suggestions</span>
+              </div>
+              <div style="font-family:var(--font-heading); font-size:1.15rem; font-weight:800; color:var(--cyan);" id="budget-slider-val-display">
+                ₹75,000
+              </div>
+            </div>
+
+            <input type="range" id="builder-budget-slider" class="budget-range-slider" min="20000" max="250000" step="1000" value="75000" oninput="handleBudgetSliderChange(this.value)" style="width:100%; cursor:pointer; accent-color:var(--cyan);" />
+
+            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-dim); margin-top:4px;">
+              <span>₹20K</span>
+              <span>₹50K</span>
+              <span>₹75K</span>
+              <span>₹1L</span>
+              <span>₹1.5L</span>
+              <span>₹2L</span>
+              <span>₹2.5L</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-top:10px;">
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm" onclick="setBuilderBudget(50000)" style="padding:3px 10px; font-size:0.78rem;">₹50K</button>
+                <button class="btn btn-primary btn-sm" onclick="setBuilderBudget(75000)" style="padding:3px 10px; font-size:0.78rem;">₹75K</button>
+                <button class="btn btn-secondary btn-sm" onclick="setBuilderBudget(100000)" style="padding:3px 10px; font-size:0.78rem;">₹1L</button>
+                <button class="btn btn-secondary btn-sm" onclick="setBuilderBudget(150000)" style="padding:3px 10px; font-size:0.78rem;">₹1.5L</button>
+                <button class="btn btn-secondary btn-sm" onclick="setBuilderBudget(200000)" style="padding:3px 10px; font-size:0.78rem;">₹2L</button>
+              </div>
+
+              <!-- What-If Mode Toggle Button -->
+              <button id="what-if-toggle-btn" class="btn btn-outline-purple btn-sm" onclick="toggleWhatIfMode()" style="padding:4px 12px; font-size:0.8rem; font-weight:700;">
+                🔮 What-If Mode
+              </button>
+            </div>
+
+            <!-- Over-Budget Alert Banner -->
+            <div id="builder-budget-alert" style="display:none; margin-top:12px; padding:10px 14px; background:rgba(255,170,0,0.1); border:1px solid rgba(255,170,0,0.3); border-radius:var(--radius-sm);">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span id="builder-budget-alert-text" style="color:var(--accent-yellow); font-size:0.85rem; font-weight:600;">⚠️ Current build exceeds your budget by ₹0</span>
+                <button class="btn btn-sm btn-primary" onclick="optimizeBuildToBudget()" style="padding:2px 10px; font-size:0.75rem;">⚡ Optimize Build</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- What-If Mode Comparison Panel (Hidden by default) -->
+          <div id="builder-what-if-panel" class="glass-card" style="display:none; margin-bottom:16px; border:1px solid var(--purple); background:rgba(189,0,255,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:1.2rem;">🔮</span>
+                <strong style="color:var(--purple); font-family:var(--font-heading);">WHAT-IF EXPERIMENT MODE</strong>
+                <span class="badge badge-purple" style="font-size:0.65rem;">Active</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn btn-primary btn-sm" onclick="applyWhatIfChanges()" style="padding:3px 12px; font-size:0.78rem;">✅ Apply Changes</button>
+                <button class="btn btn-secondary btn-sm" onclick="discardWhatIfChanges()" style="padding:3px 10px; font-size:0.78rem;">✕ Discard</button>
+              </div>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">
+              Experiment with alternative components. Changes are temporary and will NOT alter your saved build until you click Apply.
+            </div>
+            <div id="what-if-diff-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px;">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <!-- Category Selection Tabs -->
+          <div class="cat-tabs-nav" id="builder-cat-tabs">
+            <!-- Dynamic Category Tabs injected via JS -->
+          </div>
+
+          <!-- Filter & Search within category -->
+          <div class="part-filter-bar">
+            <div class="part-search-box" style="position:relative; display:flex; align-items:center;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="builder-part-search" class="form-input" placeholder="Search in this category..." oninput="handlePartSearch(this.value)" style="padding-right:28px;" />
+              <button type="button" class="btn-input-clear" onclick="clearSearchInput('builder-part-search', 'builder')" title="Clear search">✕</button>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <select id="builder-sort-select" class="form-select" style="width:160px; font-size:0.85rem;" onchange="handlePartSort(this.value)">
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="name-asc">Name: A to Z</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Parts Grid Container -->
+          <div id="builder-parts-grid" class="parts-grid">
+            <div class="loading-spinner"></div>
+          </div>
+
+        </div>
+
+        <!-- Right: Sticky Live Build Panel -->
+        <div class="builder-sidebar-panel">
+          
+          <div class="glass-card">
+            <div class="glass-card-header">
+              <span class="glass-card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                Your Custom Rig
+              </span>
+              <button class="btn btn-secondary btn-sm" onclick="clearCurrentBuild()" title="Reset All Parts">
+                ✕ Clear Build
+              </button>
+            </div>
+
+            <!-- Build Name Input -->
+            <div class="form-group" style="margin-bottom:12px;">
+              <label class="form-label" style="font-size:0.75rem;">Build Name:</label>
+              <input type="text" id="current-build-name" class="form-input" value="My Custom Rig" placeholder="Enter build name..." />
+            </div>
+
+            <!-- Slot Summary List -->
+            <div id="builder-slots-list" class="summary-slot-list">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Compatibility Status Alert Card -->
+            <div id="builder-compat-card" class="compat-status-box is-valid" style="margin-top:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-weight:700; display:flex; align-items:center; gap:6px;">
+                  <span id="compat-icon">🟢</span> <span id="compat-title">All Selected Parts Compatible</span>
+                </div>
+                <span id="compat-badge" class="badge badge-green" style="font-size:0.68rem;">🟢 Compatible</span>
+              </div>
+
+              <!-- Real-time Subcheck Matrix -->
+              <div id="compat-subchecks-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top:8px; font-size:0.72rem;">
+                <!-- Injected dynamically via JS -->
+              </div>
+
+              <ul id="compat-issues-list" style="margin-left:18px; font-size:0.8rem; margin-top:8px; display:none;"></ul>
+
+              <div id="compat-fix-actions" style="display:none; margin-top:10px;">
+                <!-- Injected dynamically via JS -->
+              </div>
+            </div>
+
+            <!-- Smart Build Score Box -->
+            <div id="builder-smart-score-box" class="smart-score-box" style="margin-top:14px; background:rgba(8,12,18,0.7); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-family:var(--font-heading); font-size:0.8rem; font-weight:700; color:var(--text-muted);">SMART BUILD SCORE</span>
+                <span class="badge badge-purple" id="builder-score-badge" style="font-size:0.85rem; font-weight:800;">91/100</span>
+              </div>
+              <div style="height:6px; background:rgba(255,255,255,0.08); border-radius:3px; margin-top:6px; overflow:hidden;">
+                <div id="builder-score-bar" style="width:91%; height:100%; background:linear-gradient(90deg, var(--cyan), var(--purple)); transition:width 0.3s ease;"></div>
+              </div>
+              <div id="builder-score-breakdown" style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-dim); margin-top:6px;">
+                <span>Balance: High</span><span>Upgradeability: 88</span><span>PSU Headroom: Good</span>
+              </div>
+            </div>
+
+            <!-- Power Consumption & Thermal Estimator Compact Cards -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px;">
+              <!-- Power Consumption Card -->
+              <div class="glass-card" style="padding:10px 12px; margin-bottom:0; background:rgba(0,229,255,0.03); border:1px solid rgba(0,229,255,0.15);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.75rem; font-weight:700; color:var(--cyan); display:flex; align-items:center; gap:4px;">
+                    ⚡ Power
+                  </span>
+                  <span id="builder-psu-adequacy-badge" class="badge badge-green" style="font-size:0.65rem;">Adequate</span>
+                </div>
+                <div style="margin-top:6px;">
+                  <div style="font-size:0.72rem; color:var(--text-dim);">Estimated: <strong id="builder-est-power-val" style="color:#fff;">0W</strong></div>
+                  <div style="font-size:0.72rem; color:var(--text-dim);">Rec. PSU: <strong id="builder-rec-psu-val" style="color:var(--cyan);">450W+</strong></div>
+                </div>
+              </div>
+
+              <!-- Thermal Estimator Card -->
+              <div class="glass-card" style="padding:10px 12px; margin-bottom:0; background:rgba(0,255,102,0.03); border:1px solid rgba(0,255,102,0.15);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="font-size:0.75rem; font-weight:700; color:var(--accent-green); display:flex; align-items:center; gap:4px;">
+                    🌡️ Thermal
+                  </span>
+                  <span id="builder-thermal-status-badge" class="badge badge-green" style="font-size:0.65rem;">Cool</span>
+                </div>
+                <div style="margin-top:6px;">
+                  <div style="font-size:0.72rem; color:var(--text-dim);">CPU Load: <strong id="builder-cpu-temp-val" style="color:#fff;">~62°C</strong></div>
+                  <div style="font-size:0.72rem; color:var(--text-dim);">GPU Load: <strong id="builder-gpu-temp-val" style="color:#fff;">~65°C</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bill Calculation Breakdown -->
+            <div class="bill-breakdown-card" style="margin-top:14px;">
+              <div class="bill-line">
+                <span>Parts Subtotal:</span>
+                <span id="calc-subtotal">₹0.00</span>
+              </div>
+              <div class="bill-line">
+                <span>GST (18% included):</span>
+                <span id="calc-gst">₹0.00</span>
+              </div>
+              <div class="bill-line grand-total">
+                <span>Total Amount:</span>
+                <span id="calc-total">₹0.00</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
+              <button class="btn btn-primary btn-block" onclick="handleSaveBuild()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Save Build to Account
+              </button>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <button class="btn btn-outline-cyan btn-block" onclick="handleGenerateBillFromCurrent()">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  GST Bill
+                </button>
+                <button class="btn btn-secondary btn-block" onclick="handleShareCurrentBuild()">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                  Share Build
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Performance & Upgrade Widgets (Collapsible) -->
+          <div class="glass-card">
+            <div class="glass-card-header" style="cursor:pointer;" onclick="toggleWidget('performance-results')">
+              <span class="glass-card-title" style="font-size:1rem;">
+                🎮 Estimated Performance
+              </span>
+              <span>▼</span>
+            </div>
+            <div id="performance-results" class="performance-results">
+              <div class="text-muted" style="font-size:0.85rem;">Select CPU & GPU to calculate FPS.</div>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <div class="glass-card-header" style="cursor:pointer;" onclick="toggleWidget('upgrade-suggestions')">
+              <span class="glass-card-title" style="font-size:1rem;">
+                🚀 Smart Upgrade Ideas
+              </span>
+              <span>▼</span>
+            </div>
+            <div id="upgrade-suggestions" class="upgrade-suggestions">
+              <div class="text-muted" style="font-size:0.85rem;">Upgrade suggestions will appear here.</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. COMPONENTS CATALOG VIEW -->
+    <section id="view-components" class="view-section">
+      <div class="section-header" style="text-align:left; margin-bottom:20px;">
+        <h2 class="section-title">Component Catalog</h2>
+        <p class="section-desc" style="margin:0;">Browse all genuine hardware parts with verified product images, socket specifications, Wishlist, and live vendor prices.</p>
+      </div>
+
+      <div class="glass-card" style="margin-bottom:20px;">
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+          <!-- Category Filter Pills -->
+          <div id="catalog-cat-pills" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <button class="btn btn-sm btn-secondary active" onclick="filterCatalogCat(null)">All Parts</button>
+            <!-- Dynamic category pills -->
+          </div>
+
+          <!-- Search & Clear All Actions -->
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <div class="part-search-box" style="min-width:220px; position:relative; display:flex; align-items:center;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="catalog-search-input" class="form-input" placeholder="Search catalog..." oninput="handleCatalogSearch(this.value)" style="padding-right:28px;" />
+              <button type="button" class="btn-input-clear" onclick="clearSearchInput('catalog-search-input', 'catalog')" title="Clear search">✕</button>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="clearCatalogFilters()" style="padding:6px 12px; font-size:0.82rem;" title="Reset all search, category, and sorting filters">
+              ✕ Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="catalog-grid" class="parts-grid">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- 4. MY BUILDS VIEW -->
+    <section id="view-my-builds" class="view-section">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+        <div>
+          <h2 class="section-title" style="margin:0;">My Saved Builds</h2>
+          <p class="text-muted">Saved PC configurations stored securely in your database account with Smart Build Scores.</p>
+        </div>
+        <button class="btn btn-primary" onclick="navigateTo('builder')">
+          ➕ New Build
+        </button>
+      </div>
+
+      <div id="my-builds-container">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 4b. PUBLIC SHARED BUILD VIEW -->
+    <section id="view-shared-build" class="view-section">
+      <div id="shared-build-content">
+        <!-- Injected dynamically via loadSharedBuildView() -->
+      </div>
+    </section>
+
+    <!-- 5. MY WISHLIST VIEW -->
+    <section id="view-wishlist" class="view-section">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+        <div>
+          <h2 class="section-title" style="margin:0;">My Wishlist</h2>
+          <p class="text-muted">Hardware components saved to your database account across sessions.</p>
+        </div>
+        <button class="btn btn-primary" onclick="navigateTo('components')">
+          🔍 Browse Catalog
+        </button>
+      </div>
+
+      <div id="my-wishlist-container" class="parts-grid">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 6. MY BILLS / INVOICES VIEW -->
+    <section id="view-my-bills" class="view-section">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+        <div>
+          <h2 class="section-title" style="margin:0;">Invoices & Bills</h2>
+          <p class="text-muted">Official itemized tax receipts for your custom rigs.</p>
+        </div>
+      </div>
+
+      <div id="my-bills-container">
+        <!-- Injected via JS -->
+      </div>
+    </section>
+
+    <!-- 7. USER DASHBOARD VIEW -->
+    <section id="view-dashboard" class="view-section">
+      <div class="section-header" style="text-align:left; margin-bottom:24px;">
+        <h2 class="section-title" id="dash-welcome-title">User Dashboard</h2>
+        <p class="text-muted">Overview of your account activity, hardware configurations, wishlist, and billing receipts.</p>
+      </div>
+
+      <!-- KPI Metrics -->
+      <div class="dashboard-stats-grid">
+        <div class="stat-kpi-card">
+          <div class="stat-kpi-icon">🖥️</div>
+          <div>
+            <div class="stat-kpi-val" id="dash-stat-builds">0</div>
+            <div class="stat-kpi-lbl">Saved Builds</div>
+          </div>
+        </div>
+        <div class="stat-kpi-card">
+          <div class="stat-kpi-icon">♥</div>
+          <div>
+            <div class="stat-kpi-val" id="dash-stat-wishlist">0</div>
+            <div class="stat-kpi-lbl">Wishlist Items</div>
+          </div>
+        </div>
+        <div class="stat-kpi-card">
+          <div class="stat-kpi-icon">🧾</div>
+          <div>
+            <div class="stat-kpi-val" id="dash-stat-bills">0</div>
+            <div class="stat-kpi-lbl">Generated Invoices</div>
+          </div>
+        </div>
+        <div class="stat-kpi-card">
+          <div class="stat-kpi-icon">₹</div>
+          <div>
+            <div class="stat-kpi-val" id="dash-stat-spent">₹0</div>
+            <div class="stat-kpi-lbl">Total Build Value</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions Grid -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;">
+        <div class="glass-card">
+          <div class="glass-card-header">
+            <span class="glass-card-title">Recent Builds</span>
+            <button class="btn btn-secondary btn-sm" onclick="navigateTo('my-builds')">View All</button>
+          </div>
+          <div id="dash-recent-builds-list"></div>
+        </div>
+
+        <div class="glass-card">
+          <div class="glass-card-header">
+            <span class="glass-card-title">Recent Invoices</span>
+            <button class="btn btn-secondary btn-sm" onclick="navigateTo('my-bills')">View All</button>
+          </div>
+          <div id="dash-recent-bills-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. ABOUT VIEW -->
+    <section id="view-about" class="view-section">
+      <div class="glass-card" style="max-width:800px; margin:0 auto;">
+        <h2 class="section-title" style="margin-bottom:16px;">About NEON RIG PC Builder</h2>
+        <p style="margin-bottom:14px; color:var(--text-muted);">
+          NEON RIG is a full-stack, database-driven custom PC building architecture built for enthusiasts, system integrators, gamers, and software developers.
+        </p>
+        
+        <h3 style="font-size:1.15rem; color:var(--cyan); margin:20px 0 10px;">Compatibility Rules Engine</h3>
+        <p style="color:var(--text-muted); margin-bottom:12px;">
+          Our backend executes real-time validation across critical hardware constraints:
+        </p>
+        <ul style="padding-left:20px; color:var(--text-muted); line-height:1.8;">
+          <li><strong>CPU Socket Matching:</strong> Matches LGA1700, AM4, AM5 CPU processors against compatible motherboard chipsets.</li>
+          <li><strong>Memory Architecture:</strong> Enforces DDR4 vs DDR5 RAM standard alignment with motherboard memory controller.</li>
+          <li><strong>Power Supply Overhead:</strong> Verifies PSU wattage meets or exceeds GPU thermal TDP requirements with safety headroom.</li>
+        </ul>
+
+        <h3 style="font-size:1.15rem; color:var(--cyan); margin:20px 0 10px;">GST Tax Invoicing & Smart Score</h3>
+        <p style="color:var(--text-muted);">
+          All builds calculate standardized 18% GST with automated bill numbering (`PB-YYYY-XXXX`), deterministic Smart Build Scores (/100), and printable PDF-ready invoices.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================
+       MODALS
+       ========================================== -->
+
+  <!-- Auth Modal (Sign In / Register) -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-container">
+      <button class="modal-close-btn" onclick="closeAuthModal()">✕</button>
+      
+      <div style="display:flex; gap:12px; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+        <button id="tab-auth-login" class="btn btn-sm btn-primary" onclick="switchAuthTab('login')">Sign In</button>
+        <button id="tab-auth-register" class="btn btn-sm btn-secondary" onclick="switchAuthTab('register')">Register New Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" onsubmit="handleLoginSubmit(event)">
+        <h3 style="font-family:var(--font-heading); margin-bottom:14px; font-size:1.2rem;">Welcome Back</h3>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="login-email" class="form-input" required placeholder="name@example.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="login-password" class="form-input" required placeholder="••••••••" />
+        </div>
+        
+        <div id="login-error" style="display:none; color:var(--accent-red); font-size:0.85rem; margin-bottom:10px;"></div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:10px;">
+          Sign In
+        </button>
+
+        <div style="margin-top:16px; padding:10px; background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.2); border-radius:var(--radius-sm); font-size:0.8rem;">
+          <div style="color:var(--cyan); font-weight:700; margin-bottom:4px;">Quick Demo Accounts:</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span>Regular User:</span>
+            <a href="javascript:void(0)" onclick="quickFillAuth('user@example.com', 'user123')" style="color:var(--cyan);">user@example.com / user123</a>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span>Admin:</span>
+            <a href="javascript:void(0)" onclick="quickFillAuth('admin@pcbuilder.com', 'admin123')" style="color:var(--purple);">admin@pcbuilder.com / admin123</a>
+          </div>
+        </div>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-register" style="display:none;" onsubmit="handleRegisterSubmit(event)">
+        <h3 style="font-family:var(--font-heading); margin-bottom:14px; font-size:1.2rem;">Create Account</h3>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="register-name" class="form-input" required placeholder="Alex Walker" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="register-email" class="form-input" required placeholder="name@example.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password (min 6 chars)</label>
+          <input type="password" id="register-password" class="form-input" required minlength="6" placeholder="••••••••" />
+        </div>
+
+        <div id="register-error" style="display:none; color:var(--accent-red); font-size:0.85rem; margin-bottom:10px;"></div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:10px;">
+          Create Account
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Part Details Modal -->
+  <div id="details-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width:650px;">
+      <button class="modal-close-btn" onclick="closeDetailsModal()">✕</button>
+      <div id="details-modal-content">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Printable Tax Invoice Modal -->
+  <div id="invoice-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width:800px; padding:0; background:transparent; border:none; box-shadow:none;">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:10px;" class="no-print">
+        <button class="btn btn-primary" onclick="window.print()">
+          🖨️ Print Tax Invoice
+        </button>
+        <button class="btn btn-secondary" onclick="closeInvoiceModal()">
+          ✕ Close
+        </button>
+      </div>
+      
+      <div id="printable-invoice-content">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Build Modal -->
+  <div id="share-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width:520px;">
+      <button class="modal-close-btn" onclick="closeShareModal()">✕</button>
+      <div style="text-align:center; padding:10px 0;">
+        <div style="font-size:2.5rem; margin-bottom:8px;">🔗</div>
+        <h3 style="font-family:var(--font-heading); font-size:1.3rem; margin-bottom:6px;">Your PC Rig is Ready to Share!</h3>
+        <p class="text-muted" style="font-size:0.85rem; margin-bottom:16px;">
+          Anyone with this link can view the complete component list, Smart Score, Power, and Thermals without seeing your private account data.
+        </p>
+
+        <div style="display:flex; gap:8px; background:rgba(0,0,0,0.4); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:6px 8px; align-items:center;">
+          <input type="text" id="share-url-input" class="form-input" readonly style="background:transparent; border:none; color:var(--cyan); font-family:monospace; font-size:0.88rem; text-overflow:ellipsis;" />
+          <button class="btn btn-primary btn-sm" id="share-copy-btn" onclick="copyShareUrl()" style="white-space:nowrap; padding:6px 14px;">
+            📋 Copy Link
+          </button>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:10px; margin-top:20px;">
+          <button class="btn btn-secondary btn-sm" onclick="openSharedBuildDirectly()">
+            👀 Preview Shared Page
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="closeShareModal()">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Smart Alternatives Modal -->
+  <div id="alternatives-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width:680px;">
+      <button class="modal-close-btn" onclick="closeAlternativesModal()">✕</button>
+      <div id="alternatives-modal-content">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="javascript:void(0)" onclick="navigateTo('home')">Home</a>
+      <a href="javascript:void(0)" onclick="navigateTo('builder')">Builder</a>
+      <a href="javascript:void(0)" onclick="navigateTo('components')">Catalog</a>
+      <a href="javascript:void(0)" onclick="navigateTo('wishlist')">Wishlist</a>
+      <a href="javascript:void(0)" onclick="navigateTo('my-builds')">My Builds</a>
+      <a href="javascript:void(0)" onclick="navigateTo('my-bills')">My Bills</a>
+      <a href="javascript:void(0)" onclick="navigateTo('about')">About</a>
+      <a href="/admin.html">Admin Dashboard</a>
+    </div>
+    <div class="footer-copyright">
+      © 2026 PC fusion PVT. LTD. All rights reserved. Database-backed & verified hardware compatibility.
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  <script src="ai-chat.js" defer></script>
+  <script src="performance.js" defer></script>
+  <script src="upgrades.js" defer></script>
+  <script src="advisor.js" defer></script>
+</body>
+</html>

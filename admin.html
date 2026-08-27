@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEON RIG — Enterprise Admin Portal</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body id="admin-app" style="min-height:100vh;">
+
+  <!-- Admin Navbar -->
+  <header class="navbar">
+    <div class="nav-brand" onclick="location.href='/'">
+      <span class="brand-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        NEON RIG ADMIN
+      </span>
+      <span class="badge badge-purple">SYSTEM ROOT</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div id="admin-user-info" style="font-size:0.9rem; color:var(--text-muted);">
+        Authenticated as: <strong id="admin-name-tag" style="color:#fff;">Administrator</strong>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="location.href='/'">
+        ⬅️ Back to Main Store
+      </button>
+      <button class="btn btn-danger btn-sm" onclick="handleAdminLogout()">
+        Sign Out
+      </button>
+    </div>
+  </header>
+
+  <!-- Admin Layout: Sidebar + Main Content -->
+  <div class="admin-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+      <div class="admin-nav-item active" data-admin-tab="overview" onclick="switchAdminTab('overview')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Dashboard
+      </div>
+      <div class="admin-nav-item" data-admin-tab="users" onclick="switchAdminTab('users')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        All Users
+      </div>
+      <div class="admin-nav-item" data-admin-tab="builds" onclick="switchAdminTab('builds')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        All Builds
+      </div>
+      <div class="admin-nav-item" data-admin-tab="bills" onclick="switchAdminTab('bills')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        Bills & Orders
+      </div>
+      <div class="admin-nav-item" data-admin-tab="components" onclick="switchAdminTab('components')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+        Component Catalog
+      </div>
+      <div class="admin-nav-item" data-admin-tab="reports" onclick="switchAdminTab('reports')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        Reports & Stats
+      </div>
+      <div class="admin-nav-item" data-admin-tab="settings" onclick="switchAdminTab('settings')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Settings & Token
+      </div>
+    </aside>
+
+    <!-- Main Admin Workspace -->
+    <main class="admin-content">
+
+      <!-- TAB 1: OVERVIEW DASHBOARD -->
+      <section id="admin-tab-overview" class="admin-tab-content">
+        <div style="margin-bottom:24px;">
+          <h2 class="section-title" style="margin:0;">System Overview</h2>
+          <p class="text-muted">Real-time metrics queried directly from the SQLite database.</p>
+        </div>
+
+        <!-- 4 Real Database KPI cards -->
+        <div class="dashboard-stats-grid">
+          <div class="stat-kpi-card">
+            <div class="stat-kpi-icon">👥</div>
+            <div>
+              <div class="stat-kpi-val" id="admin-stat-users">0</div>
+              <div class="stat-kpi-lbl">Total Registered Users</div>
+            </div>
+          </div>
+          <div class="stat-kpi-card">
+            <div class="stat-kpi-icon">🖥️</div>
+            <div>
+              <div class="stat-kpi-val" id="admin-stat-builds">0</div>
+              <div class="stat-kpi-lbl">Total Saved Builds</div>
+            </div>
+          </div>
+          <div class="stat-kpi-card">
+            <div class="stat-kpi-icon">🧾</div>
+            <div>
+              <div class="stat-kpi-val" id="admin-stat-bills">0</div>
+              <div class="stat-kpi-lbl">Total Orders / Invoices</div>
+            </div>
+          </div>
+          <div class="stat-kpi-card">
+            <div class="stat-kpi-icon">₹</div>
+            <div>
+              <div class="stat-kpi-val" id="admin-stat-revenue" style="color:var(--accent-green);">₹0</div>
+              <div class="stat-kpi-lbl">Total Gross Revenue</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Tables (3 columns / cards) -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
+          <!-- Recent Users -->
+          <div class="glass-card">
+            <div class="glass-card-header">
+              <span class="glass-card-title">Recent Users</span>
+              <button class="btn btn-secondary btn-sm" onclick="switchAdminTab('users')">View All</button>
+            </div>
+            <div id="admin-recent-users-table" class="table-responsive"></div>
+          </div>
+
+          <!-- Recent Builds -->
+          <div class="glass-card">
+            <div class="glass-card-header">
+              <span class="glass-card-title">Recent Builds</span>
+              <button class="btn btn-secondary btn-sm" onclick="switchAdminTab('builds')">View All</button>
+            </div>
+            <div id="admin-recent-builds-table" class="table-responsive"></div>
+          </div>
+        </div>
+
+        <!-- Recent Bills -->
+        <div class="glass-card">
+          <div class="glass-card-header">
+            <span class="glass-card-title">Recent Invoices / Orders</span>
+            <button class="btn btn-secondary btn-sm" onclick="switchAdminTab('bills')">View All</button>
+          </div>
+          <div id="admin-recent-bills-table" class="table-responsive"></div>
+        </div>
+      </section>
+
+      <!-- TAB 2: USERS MANAGEMENT -->
+      <section id="admin-tab-users" class="admin-tab-content" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <div>
+            <h2 class="section-title" style="margin:0;">User Management</h2>
+            <p class="text-muted">View all user accounts, role permissions, and individual build/order histories.</p>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="table-responsive" id="admin-all-users-table">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: BUILDS MANAGEMENT -->
+      <section id="admin-tab-builds" class="admin-tab-content" style="display:none;">
+        <div style="margin-bottom:20px;">
+          <h2 class="section-title" style="margin:0;">All Saved Builds</h2>
+          <p class="text-muted">Track all hardware configurations built by registered users.</p>
+        </div>
+
+        <div class="glass-card">
+          <div class="table-responsive" id="admin-all-builds-table">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: BILLS & ORDERS MANAGEMENT -->
+      <section id="admin-tab-bills" class="admin-tab-content" style="display:none;">
+        <div style="margin-bottom:20px;">
+          <h2 class="section-title" style="margin:0;">All Orders & Invoices</h2>
+          <p class="text-muted">Review generated GST invoices, subtotal breakdowns, and customer purchases.</p>
+        </div>
+
+        <div class="glass-card">
+          <div class="table-responsive" id="admin-all-bills-table">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: COMPONENT CATALOG CRUD -->
+      <section id="admin-tab-components" class="admin-tab-content" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <div>
+            <h2 class="section-title" style="margin:0;">Component Catalog CRUD</h2>
+            <p class="text-muted">Add, update, or remove hardware parts, edit specifications JSON, and autofill images.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openAddComponentModal()">
+            ➕ Add New Component
+          </button>
+        </div>
+
+        <!-- Image Autofill Banner -->
+        <div class="glass-card" style="margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div>
+            <strong>🖼️ Automated Component Image Engine</strong>
+            <div class="text-muted" style="font-size:0.85rem;">Automatically search Google / Pexels / DuckDuckGo to populate missing component images.</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span id="admin-autofill-status" style="font-size:0.85rem; color:var(--cyan);"></span>
+            <button id="admin-autofill-btn" class="btn btn-secondary btn-sm" onclick="handleAdminAutofillImages()">
+              Run Image Autofill
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="table-responsive" id="admin-components-table">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: REPORTS & STATS -->
+      <section id="admin-tab-reports" class="admin-tab-content" style="display:none;">
+        <div style="margin-bottom:20px;">
+          <h2 class="section-title" style="margin:0;">Hardware & Revenue Analytics</h2>
+          <p class="text-muted">Aggregated analytics across hardware categories and average pricing.</p>
+        </div>
+
+        <div class="glass-card">
+          <h3 style="font-size:1.1rem; margin-bottom:16px; color:#fff;">Inventory & Average Price by Category</h3>
+          <div class="table-responsive" id="admin-reports-table">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: SETTINGS & STATIC TOKENS -->
+      <section id="admin-tab-settings" class="admin-tab-content" style="display:none;">
+        <div style="max-width:600px;">
+          <h2 class="section-title" style="margin-bottom:20px;">Admin Configuration</h2>
+          
+          <div class="glass-card">
+            <h3 style="font-size:1.05rem; margin-bottom:12px; color:#fff;">Authentication Mode</h3>
+            <p class="text-muted" style="font-size:0.88rem; margin-bottom:16px;">
+              Admin access is validated via JWT Bearer Token (Role: ADMIN) or static developer token header (<code>x-admin-token</code>).
+            </p>
+            
+            <div class="form-group">
+              <label class="form-label">Static Developer Token:</label>
+              <input type="password" id="admin-static-token-input" class="form-input" value="dev-admin" />
+            </div>
+
+            <button class="btn btn-primary" onclick="saveAdminStaticToken()">
+              Save Token
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Component Add/Edit Modal -->
+  <div id="admin-comp-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width:650px;">
+      <button class="modal-close-btn" onclick="closeAdminCompModal()">✕</button>
+      <h3 id="admin-comp-modal-title" style="font-family:var(--font-heading); margin-bottom:16px;">Add Component</h3>
+
+      <form id="admin-comp-form" onsubmit="handleAdminCompSubmit(event)">
+        <input type="hidden" id="admin-comp-id" />
+        
+        <div class="form-group">
+          <label class="form-label">Component Name</label>
+          <input type="text" id="admin-comp-name" class="form-input" required placeholder="e.g., AMD Ryzen 7 7800X3D" />
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="admin-comp-category" class="form-select" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Price (₹ INR)</label>
+            <input type="number" id="admin-comp-price" class="form-input" step="100" min="0" required placeholder="32000" />
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Socket / Interface (optional)</label>
+            <input type="text" id="admin-comp-socket" class="form-input" placeholder="e.g., AM5, LGA1700" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Image URL</label>
+            <input type="text" id="admin-comp-image" class="form-input" placeholder="https://..." />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Specifications (JSON)</label>
+          <textarea id="admin-comp-specs" class="form-textarea" rows="4" placeholder='{"cores": 8, "threads": 16, "base_ghz": 4.2}'></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+          <button type="button" class="btn btn-secondary" onclick="closeAdminCompModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Component</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- User Details Modal -->
+  <div id="admin-user-details-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width:700px;">
+      <button class="modal-close-btn" onclick="closeAdminUserModal()">✕</button>
+      <div id="admin-user-modal-content">
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

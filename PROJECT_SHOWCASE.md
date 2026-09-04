@@ -1,7 +1,7 @@
 # 🖥️ PC Builder - Project Showcase
 
 > **Built by**: Krish Bhalerao  
-> **GitHub**: [@NoTKrisHisOp](https://github.com/Adnank66/Ai-Auto-Rig)  
+> **GitHub**: [KaziAdnan63](https://github.com/Adnank66/Ai-Auto-Rig)  
 > **Project Type**: Full-Stack Web Application  
 > **Status**: ✅ Complete & Functional  
 
@@ -122,6 +122,6 @@ pc-builder/
 
 ---
 
-**💬 Contact**: [Email](mailto:kaziadnan456@gmail.com) | **🔗 GitHub**: [@NoTKrisHisOp](https://github.com/Adnank66/Ai-Auto-Rig)
+**💬 Contact**: [Email](mailto:kaziadnan456@gmail.com) | **🔗 GitHub**: [KaziAdnan63](https://github.com/Adnank66/Ai-Auto-Rig)
 
 *This project demonstrates my ability to create full-stack web applications with modern technologies and user-centered design.*
